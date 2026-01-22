@@ -1,0 +1,130 @@
+openapi: 3.0.3
+info:
+  title: JSONPlaceholder (Focused Study Spec)
+  version: "1.0.0"
+  description: |
+    Minimal OpenAPI spec created for a focused study on **manual execution in Swagger UI**
+    vs **automated test scripts in Postman**.
+
+    Scope is intentionally limited to four requests:
+    - GET /posts/1
+    - GET /users/1
+    - GET /posts/99999
+    - GET /users/abc
+
+servers:
+  - url: https://jsonplaceholder.typicode.com
+
+paths:
+  /posts/{id}:
+    get:
+      summary: Get a post by id
+      description: |
+        Returns a post object for valid numeric ids (e.g., 1..100).
+        For invalid or non-existing ids, JSONPlaceholder may return an empty object.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          examples:
+            valid:
+              value: "1"
+            nonExisting:
+              value: "99999"
+            invalidType:
+              value: "abc"
+      responses:
+        "200":
+          description: OK (may be empty object for non-existing/invalid ids)
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/Post"
+                  - $ref: "#/components/schemas/EmptyObject"
+              examples:
+                post1:
+                  summary: Example for /posts/1
+                  value:
+                    userId: 1
+                    id: 1
+                    title: "..."
+                    body: "..."
+                empty:
+                  summary: Example empty object (commonly seen for non-existing ids)
+                  value: {}
+        "404":
+          description: Not Found (some deployments/tools may show 404 for non-existing resources)
+
+  /users/{id}:
+    get:
+      summary: Get a user by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 1
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "404":
+          description: Not Found (some deployments/tools may show 404 for non-existing resources)
+
+components:
+  schemas:
+    EmptyObject:
+      type: object
+      description: Empty JSON object
+      additionalProperties: false
+
+    Post:
+      type: object
+      required: [userId, id, title, body]
+      properties:
+        userId:
+          type: integer
+        id:
+          type: integer
+        title:
+          type: string
+        body:
+          type: string
+
+    User:
+      type: object
+      required: [id, name, username, email, address, company]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+        address:
+          type: object
+          properties:
+            street: { type: string }
+            suite: { type: string }
+            city: { type: string }
+            zipcode: { type: string }
+            geo:
+              type: object
+              properties:
+                lat: { type: string }
+                lng: { type: string }
+        company:
+          type: object
+          properties:
+            name: { type: string }
+            catchPhrase: { type: string }
+            bs: { type: string }
